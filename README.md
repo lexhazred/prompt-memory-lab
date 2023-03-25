@@ -1,4 +1,4 @@
-# prompt-memory-lab
+# Prompt Memory Lab
 Set of scripts experimenting with various methods of prompt memory for LLMs and the finding lowest token cost per prompt whilst retaining memory of conversational sessions.
 
 
