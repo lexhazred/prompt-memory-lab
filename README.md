@@ -17,7 +17,7 @@ Cons: High cost, token cost per message increases linearly with every message. T
 
 In the case with Linear Tensor Memory I += 
 
-https://user-images.githubusercontent.com/123819841/227696954-fb40a2e2-c67b-4825-859d-6858911625fd.png
+![Summation notation of LTM cost](https://user-images.githubusercontent.com/123819841/227696954-fb40a2e2-c67b-4825-859d-6858911625fd.png)
 
 
 
