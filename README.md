@@ -35,6 +35,24 @@ The process goes like this:
 
 The cost will still grow exponential as the Abstraction vector is uncapped and all abstractions are inclusive. There is no second-order abstractions. Let's compare the cost of A-ISM with ISM.
 
+The results are fruitful (using the short-term-memory-calc.py):
+Inclusive STM - 100 msgs:
+FINAL TOKENS PER MSG: 545000          
+FINAL COST PER MSG: $1.0908          
+TOTAL COST OF CONVERSATION: $38.45
+
+Abstracted Inclusive STM - 100 msgs, 51 cap, 1 abstraction
+FINAL TOKENS PER MSG: 404250          
+FINAL COST PER MSG: $0.8093          
+TOTAL COST OF CONVERSATION: $24.38
+37% cost reduction from ISM^
+
+Abstracted Inclusive STM - 100 msgs, 11 cap, 9 abstractions
+FINAL TOKENS PER MSG: 142200          
+FINAL COST PER MSG: $0.2852          
+TOTAL COST OF CONVERSATION: $8.78
+78% cost reduction from ISM^
+
 
 ### 1. Inclusive Tensor Memory (ITM)
 
