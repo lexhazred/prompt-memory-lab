@@ -1,6 +1,8 @@
 # Prompt Memory Lab
 Set of scripts experimenting with various methods of prompt memory for LLMs and the finding lowest token cost per prompt whilst retaining memory of conversational sessions.
 
+This readme is under construction. It will be cleaned up and completed once all testing is done. Scripts for calculators and simulations will all be uploaded. Further experimentation is still underway.
+
 ## Short-Term Memory Algoirthms
 
 ### Inclusive Short-Term Memory (ISM)
@@ -15,7 +17,7 @@ Where n is the number of messages in the conversation, m is the token count for 
 
 ISM becomes cost prohibitive as costs rises exponentially.
 
-To reduce cost, we can cap the number of elements in the shot-term memory vector. Then we can abstract the entire conversation in the short-term vector by prompting the LLM to create a summary with t tokens. By adding this abstraction to the prompt and 'emptying' the short-term memory vector, we can taper the exponential cost increase.
+To reduce cost, we can cap the number of elements in the shot-term memory vector. Then we can abstract the entire conversation in the short-term vector by prompting the LLM to create a summary with t tokens. By adding this abstraction to the prompt and 'clearing' the short-term memory vector, we can taper the exponential cost increase.
 
 We can call this new algorithm Abstraction Inclusive Short-Term Memory (A-ISM)
 
@@ -36,23 +38,121 @@ The process goes like this:
 The cost will still grow exponential as the Abstraction vector is uncapped and all abstractions are inclusive. There is no second-order abstractions. Let's compare the cost of A-ISM with ISM.
 
 The results are fruitful (using the short-term-memory-calc.py):
-Inclusive STM - 100 msgs:
-FINAL TOKENS PER MSG: 545000          
-FINAL COST PER MSG: $1.0908          
-TOTAL COST OF CONVERSATION: $38.45
 
-Abstracted Inclusive STM - 100 msgs, 51 cap, 1 abstraction
-FINAL TOKENS PER MSG: 404250          
-FINAL COST PER MSG: $0.8093          
-TOTAL COST OF CONVERSATION: $24.38
-37% cost reduction from ISM^
 
-Abstracted Inclusive STM - 100 msgs, 11 cap, 9 abstractions
-FINAL TOKENS PER MSG: 142200          
-FINAL COST PER MSG: $0.2852          
-TOTAL COST OF CONVERSATION: $8.78
-78% cost reduction from ISM^
+Inclusive STM - 30 msgs:
 
+* FINAL TOKENS PER MSG: 58500          
+* FINAL COST PER MSG: $0.1178          
+* TOTAL COST OF CONVERSATION: $1.38
+
+Abstracted Inclusive STM - 30 msgs, 16 cap:
+
+* FINAL TOKENS PER MSG: 18200          
+* FINAL COST PER MSG: $0.037          
+* TOTAL COST OF CONVERSATION: $0.56
+59% cost reduction from ISM^
+
+Abstracted Inclusive STM - 30 msgs, 10 cap:
+
+* FINAL TOKENS PER MSG: 0          
+* FINAL COST PER MSG: $0.0278          
+* TOTAL COST OF CONVERSATION: $0.41
+70% cost reduction of ISM ^
+
+Abstracted Inclusive STM - 30 msgs, 5 cap:
+
+* FINAL TOKENS PER MSG: 0          
+* FINAL COST PER MSG: $0.019         
+* TOTAL COST OF CONVERSATION: $0.313
+24% cost reduction from 10 cap ^
+77% cost reduction from ISM ^
+
+
+### Fully Abstracted Short-Term Memory (FASM)
+
+In a Fully Abstracted Memory, there is no Abstraction Vector, there is only a single Abstraction cell. When the short-term memory vector is cleared, an abstraction is created from all the tokens in the vector, just like with A-ISM. However upon subsequent memory clearing, the content of the Abstraction cell is used as a prompt in the Abstraction process in conjunction with the memory vector and then the content of the Abstraction cell is replaced with the new Abstraction. Thus FASM is not inclusive of all messages nor of Abstractions.
+
+Testing this with the fasm-calc.py has shown that FASM is negligably more cost effective for normal message volume (~30 messages):
+
+Fully Abstracted STM (FASM) - 30 msgs, 10 cap
+* FINAL TOKENS PER MSG: 0          
+* FINAL COST PER MSG: $0.0227       
+* TOTAL COST OF CONVERSATION: $0.386
+5% cost reduction from A-ISM^
+
+However in high message volume (~100 messages), the results are more noticeable:
+
+
+Inclusive STM (ISM)- 100 msgs:
+
+* FINAL TOKENS PER MSG: 545000          
+* FINAL COST PER MSG: $1.0908          
+* TOTAL COST OF CONVERSATION: $38.45
+
+Abstracted Inclusive STM - 100 msgs, 51 cap, 1 abstraction:
+
+* FINAL TOKENS PER MSG: 149450          
+* FINAL COST PER MSG: $0.2997          
+* TOTAL COST OF CONVERSATION: $11.64
+70% cost reduction from ISM^
+
+Abstracted Inclusive STM - 100 msgs, 21 cap, 4 abstractions:
+
+* FINAL TOKENS PER MSG: 34400          
+* FINAL COST PER MSG: $0.0696          
+* TOTAL COST OF CONVERSATION: $3.61
+91% cost reduction from ISM^
+
+Abstracted Inclusive STM - 100 msgs, 11 cap, 9 abstractions:
+
+* FINAL TOKENS PER MSG: 35400          
+* FINAL COST PER MSG: $0.0716          
+* TOTAL COST OF CONVERSATION: $2.54
+94% cost reduction from ISM^
+
+Fully Abstracted STM (FASM) - 100 msgs, 11 cap, 9 abstractions:
+
+* FINAL TOKENS PER MSG: 14400          
+* FINAL COST PER MSG: $0.0296          
+* TOTAL COST OF CONVERSATION: $1.46
+96% cost reduction from ISM^
+43% cost reduction from A-ISM^
+
+
+43% cost reduction from A-ISM is substantial, but A-ISM already demonstrates >90% cost reduction from ISM, so the real cost reduction in high message volume is small even though the percentage is relatively high. A-ISM however can still have exponential cost increases in massive message volume (1000 msgs). A quick test demonstrates FASM being significantly more cost effective in massive message volume:
+
+Abstracted Inclusive STM - 1000 msgs, 11 cap, 90 abstractions:
+
+* FINAL TOKENS PER MSG: 233500          
+* FINAL COST PER MSG: $0.467        
+* TOTAL COST OF CONVERSATION: $168.10
+
+Fully Abstracted STM - 1000 msgs, 11 cap, 90 abstractions:
+
+* FINAL TOKENS PER MSG: 7400          
+* FINAL COST PER MSG: $0.01488          
+* TOTAL COST OF CONVERSATION: $9.14
+95% cost reduction from A-ISM^
+
+FASM is the most cost-effective choice for massive message volume. 
+
+### Conclusion
+
+While more investigation is needed, as well as setting restrictive token caps to fit with GPT-3.5 4k token limit, there seems to be promising results:
+
+* Abstraction significantly reduces cost of per-msg prompt while retaining memory.
+* ISM allows for total recall of conversational content but is extremely expensive and impractical. Inclusive memory can be used in a limited way within a data vector for working memory in conjunction with Abstractions as is the case with A-ISM.
+* A-ISM works well and is quite cheap for normal-high message volumes, making it a strong candidate for an algorithm for working memory. However it becomes cost prohibitve in massive message volume, therefore Abstraction vector has to be capped and cleared.
+* FASM is by far the cheapest option, however hypothetically it has the highest chance for memory loss and decrease in quality for conversational recall. Because of this, FASM may be best suited for a long-term memory setup.
+
+Further investigation and experimentation is needed. Some current issues:
+
+* Greater optimization needed so that the number of tokens in each prompt stack lies within a 4k token limit. Consider chaining with other LLMs for abstraction process.
+* Investigation into optimal short-term memory vector cap number. Local minima for cost, local maxima for quality.
+* Consider short-term memory vector to have tapered clearing, with the oldest messages in the vector loaded into abstraction while newest messages remain inclusive. This should hypothetically increase quality.
+
+# OLD - ignore
 
 ### 1. Inclusive Tensor Memory (ITM)
 
