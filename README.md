@@ -13,6 +13,28 @@ ISM is expensive, its cost represented as:
 
 Where n is the number of messages in the conversation, m is the token count for each message, and S is a System prompt that isn't appended to the short-term memory vector, but is included at the start of each prompt.
 
+ISM becomes cost prohibitive as costs rises exponentially.
+
+To reduce cost, we can cap the number of elements in the shot-term memory vector. Then we can abstract the entire conversation in the short-term vector by prompting the LLM to create a summary with t tokens. By adding this abstraction to the prompt and 'emptying' the short-term memory vector, we can taper the exponential cost increase.
+
+We can call this new algorithm Abstraction Inclusive Short-Term Memory (A-ISM)
+
+### Abstraction Inclusive Short-Term Memory
+
+Using A-ISM, the composition of each prompt or prompt 'stack' would be:
+1. System Prompt
+2. Abstraction Vector
+3. Short-Term Memory Vector
+
+The process goes like this:
+1. After every message, append prompt and response tokens in short-term memory vector
+2. If number of elements in short-term memory vector == the memory limit, go to 3 else go to 1
+3. Abstract short-term memory by summarizing the contents of the short-term memory vector; use the entire vector as the prompt
+4. Empty short-term memory vector
+5. Append abstraction vector with abstraction
+
+The cost will still grow exponential as the Abstraction vector is uncapped and all abstractions are inclusive. There is no second-order abstractions. Let's compare the cost of A-ISM with ISM.
+
 
 ### 1. Inclusive Tensor Memory (ITM)
 
