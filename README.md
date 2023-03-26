@@ -1,27 +1,38 @@
 # Prompt Memory Lab
 Set of scripts experimenting with various methods of prompt memory for LLMs and the finding lowest token cost per prompt whilst retaining memory of conversational sessions.
 
+## Short-Term Memory Algoirthms
+
+### Inclusive Short-Term Memory (ISM)
+
+In ISM, all tokens from all messages (prompt + response) in each conversation are appended to the prompt after each message. The entirity of all appended tokens can be represented as a vector. The short-term memory vector included in every prompt is thus inclusive of all tokens of all messages in each conversation.
+
+ISM is expensive, its cost represented as:
+
+![Cost formula for I-SM](https://user-images.githubusercontent.com/123819841/227754883-f471ba01-6947-4db4-9306-45631fc7ac12.png)
+
+Where n is the number of messages in the conversation, m is the token count for each message, and S is a System prompt that isn't appended to the short-term memory vector, but is included at the start of each prompt.
 
 
-## 1. Linear Tensor Memory
+### 1. Inclusive Tensor Memory (ITM)
 
-Every message (prompt + response) is appended to the prompt initialization. At the end of a conversation with n messages, every message added to the initial prompt initialization during the conversation is added to a long-term memory tensor. The long-term memory tensor is appended to the prompt initialization at the start of the next conversation.
+All tokens are appended to the prompt after each message (prompt + response). At the end of a conversation with n messages, every message added to the prompt  during the conversation is added to a long-term memory tensor. The long-term memory tensor is appended to the prompt initialization at the start of the next conversation.
 
 Prompt Stack:
-- Initial Prompt
+- System Prompt
 - Long-Term Memory Tensor
 - Short-Term Memory Vector
 
 Advantages: Recall of every message of every prompt.
 Cons: High cost, token cost per message increases linearly with every message. The cost shown is I = Initial prompt cost, C = cost per message, n = number of messages per conversation.
 
-In the case with Linear Tensor Memory I += 
+In the case with ITM:
 
 ![Summation notation of LTM cost](https://user-images.githubusercontent.com/123819841/227696954-fb40a2e2-c67b-4825-859d-6858911625fd.png)
 
 
 
-## 2. Abstracted Linear Memory
+### 2. Abstracted Linear Memory
 
 Short-term memory functions similarly to LTM in that every message is appended to the prompt initialization. However at the end of a conversation, the memory undergoes a compression process whereby the short-term memory is summarized by an LLM into an Abstraction. The Abstraction(s) are collected into a long-term memory vector and appended at the start of the next conversation.
 
@@ -37,7 +48,7 @@ Cons: Costs may still be high due to linearly increased per prompt cost. There m
 
 
 
-## 3. Fully Abstracted Memory
+### 3. Fully Abstracted Memory
 
 Short-term memory also functions the same as Absolute and Abstracted memory, the difference here is that there is only 1 Abstraction in every prompt. The end of a conversation means that the short-term memory vector is abstracted, but in a new conversation the newest abstraction is used. Abstractions do not stack. Therefore per prompt cost is hypothetically the lowest, but memory loss possibly the highest.
 
